@@ -1,0 +1,293 @@
+cqlsh> create keyspace studentss with replication={'class':'SimpleStrategy','replication_factor':1};
+cqlsh> describe keyspaces;
+cqlsh> select* from system.schema_keyspaces;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="unconfigured table schema_keyspaces"
+cqlsh> select* FROM system.schema_keyspaces;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="unconfigured table schema_keyspaces"
+cqlsh> SELECT* FROM system.schema_keyspaces;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="unconfigured table schema_keyspaces"
+cqlsh> use stud;
+cqlsh:stud> create table stud_info(rollno int primary key, studname text, dateofjoining timestamp, lastexampercent double};
+SyntaxException: line 1:109 no viable alternative at input '}' (...text, dateofjoining timestamp, lastexampercent [double]}...)
+cqlsh:stud> create table stud_info(rollno int primary key, studname text, dateofjoining timestamp, lastexampercent double);
+cqlsh:stud> describe tables;
+
+stud_info
+
+cqlsh:stud> describe table stud_info;
+
+CREATE TABLE stud.stud_info (
+    rollno int PRIMARY KEY,
+    dateofjoining timestamp,
+    lastexampercent double,
+    studname text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND crc_check_chance = 1.0
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99PERCENTILE';
+cqlsh:studentss> begin batch 
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(1,'rohit''2012-03-29;,70)
+             ... apply batch;
+             ... 
+cqlsh:studentss> insert into student_info(rollno,studname,doj,lastexampercent)values(1,'rohit,'2012-03-09',70)
+             ... apply batch;
+             ... 
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)values(1,'rohit,'2012-03-09',70)
+             ... apply batch;
+             ... select * from student_info;
+             ... 
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)values(1,'rohit,'2012-03-09',70)
+             ... 
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(1,'rohit','2012-03-09',70)
+             ... apply batch;
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+
+(1 rows)
+cqlsh:studentss> begin batch 
+             ... begin batch insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(2,'rahul','2011-03-06',70)
+             ... apply batch;
+SyntaxException: line 2:0 mismatched input 'begin' expecting K_APPLY (begin batch [begin]...)
+cqlsh:studentss> begin batch  
+             ... begin batch  begin batch insert into student_info(rollno,studname,doj,l
+[3]+  Stopped                 cqlsh
+bmsce@bmsce-Precision-T1700:~$ cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.11.4 | CQL spec 3.4.4 | Native protocol v4]
+Use HELP for help.
+cqlsh> use studentss;
+cqlsh:studentss> begin batch
+             ... insert into student_info(roolno,studname,doj,lastexampercent)
+             ... values(2,'rahul','2011-03-06'.70)
+             ... apply batch
+             ... 
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(2,'rahul','2011-03-06',70)
+             ... apply batch
+             ... 
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(2,'rahul','2011-03-06',71)
+             ... apply batch;
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+
+(2 rows)
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(3,'karthick','2013-03-06',71)
+             ... apply batch;
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 | karthick
+
+(3 rows)
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(4,'ruben','2013-03-06',68)
+             ... apply batch;
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+      4 | 2013-03-05 18:30:00.000000+0000 |              68 |    ruben
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 | karthick
+
+(4 rows)
+cqlsh:studentss> begin batch
+             ... insert into student_info(rollno,studname,doj,lastexampercent)
+             ... values(4,'ryan','2013-03-06',67)
+             ... apply batch;
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+      4 | 2013-03-05 18:30:00.000000+0000 |              67 |     ryan
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 | karthick
+
+(4 rows)
+cqlsh:studentss> select * from student_info 
+             ... where rollno(1,2,3)
+             ... 
+cqlsh:studentss> select * from student_info 
+             ... where rollno(1,2,3);
+SyntaxException: line 2:12 no viable alternative at input '(' (select * from student_info where [rollno](...)
+cqlsh:studentss> select * from student_info  where rollno(1,2,3);
+SyntaxException: line 1:40 no viable alternative at input '(' (select * from student_info  where [rollno](...)
+cqlsh:studentss> select * 
+             ... from student_info
+             ... where rollno(1,2,3);
+SyntaxException: line 3:12 no viable alternative at input '(' (select * from student_infowhere [rollno](...)
+cqlsh:studentss> select *
+             ... from student_info
+             ... where rollno in(1,2,3);
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 | karthick
+
+(3 rows)
+cqlsh:studentss> create index_on student_info(studname)
+             ... 
+cqlsh:studentss> create index_on student_info(studname);
+SyntaxException: line 1:7 no viable alternative at input 'index_on' ([create] index_on...)
+cqlsh:studentss> create index on student_info(studname)
+             ... 
+cqlsh:studentss> create index on student_info(studname);
+cqlsh:studentss> select* from student_info where studname='ryan';
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      4 | 2013-03-05 18:30:00.000000+0000 |              67 |     ryan
+
+(1 rows)
+cqlsh:studentss> create index on student_info(lastexampercent);
+cqlsh:studentss> select * from student_info where lastrcampercent=80;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Undefined column name lastrcampercent"
+cqlsh:studentss> select * from student_info where lastexampercent=80;
+
+ rollno | doj | lastexampercent | studname
+--------+-----+-----------------+----------
+
+(0 rows)
+cqlsh:studentss> select * from student_info where lastexampercent=69;
+
+ rollno | doj | lastexampercent | studname
+--------+-----+-----------------+----------
+
+(0 rows)
+cqlsh:studentss> select * from student_info where lastexampercent=71;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 | karthick
+
+(2 rows)
+cqlsh:studentss> select rollno,hobbies,language,lastexampercent 
+             ... from student_info LIMIT 2;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Undefined column name hobbies"
+cqlsh:studentss> select rollno,lastexampercent  from student_info LIMIT 2;
+
+ rollno | lastexampercent
+--------+-----------------
+      1 |              70
+      2 |              71
+
+(2 rows)
+cqlsh:studentss> update student_info set studname='rahul' where rollno=2; 
+cqlsh:studentss> select * from student_info
+             ... 
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |    rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |    rahul
+      4 | 2013-03-05 18:30:00.000000+0000 |              67 |     ryan
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 | karthick
+
+(4 rows)
+cqlsh:studentss> update student_info set studname='karthickk' where rollno=5; 
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+-----------
+      5 |                            null |            null | karthickk
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |     rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |     rahul
+      4 | 2013-03-05 18:30:00.000000+0000 |              67 |      ryan
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 |  karthick
+
+(5 rows)
+cqlsh:studentss> update student_info set studname='rohit' where rollno=6; 
+cqlsh:studentss> select * from student_info;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+-----------
+      5 |                            null |            null | karthickk
+      1 | 2012-03-08 18:30:00.000000+0000 |              70 |     rohit
+      2 | 2011-03-05 18:30:00.000000+0000 |              71 |     rahul
+      4 | 2013-03-05 18:30:00.000000+0000 |              67 |      ryan
+      6 |                            null |            null |     rohit
+      3 | 2013-03-05 18:30:00.000000+0000 |              71 |  karthick
+
+(6 rows)
+cqlsh:studentss> update student_info rollno=6 where rolno=2;
+SyntaxException: line 1:20 no viable alternative at input 'rollno' (update [student_info] rollno...)
+cqlsh:studentss> update student_info rollno=6 where rollno=2;
+SyntaxException: line 1:20 no viable alternative at input 'rollno' (update [student_info] rollno...)
+cqlsh:studentss> update student_info set rollno=6 where rollno=2;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="PRIMARY KEY part rollno found in SET part"
+cqlsh:studentss> update student_info set lastexampercent= 70 where lastexampercent=75;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Some partition key parts are missing: rollno"
+cqlsh:studentss> update student_info set lastexampercent= 75 where lastexampercent=70;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Some partition key parts are missing: rollno"
+cqlsh:studentss> update student_info set lastexampercent=75 where lastexampercent=70;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="Some partition key parts are missing: rollno"
+cqlsh:studentss> select rollno,studname,lastexampercent from student_info where rollno=3;
+
+ rollno | studname | lastexampercent
+--------+----------+-----------------
+      3 | karthick |              71
+
+(1 rows)
+cqlsh:studentss> delete lastexampercent from student_info where rollno=3;
+cqlsh:studentss> select * from student_info where rollno=3;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      3 | 2013-03-05 18:30:00.000000+0000 |            null | karthick
+
+(1 rows)
+cqlsh:studentss> delete lastexampercent from student_info where rollno=3;
+cqlsh:studentss> select * from student_info where rollno=3;
+
+ rollno | doj                             | lastexampercent | studname
+--------+---------------------------------+-----------------+----------
+      3 | 2013-03-05 18:30:00.000000+0000 |            null | karthick
+
+(1 rows)
+cqlsh:studentss> delete from student_info where rollno=2;
+cqlsh:studentss> select * from student_info where rollno=2;
+
+ rollno | doj | lastexampercent | studname
+--------+-----+-----------------+----------
+
+(0 rows)
+cqlsh:studentss> delete from student_info where rollno=2;
+
